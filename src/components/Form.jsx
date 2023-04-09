@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { Auth, db } from '../firebase-config';
 import { collection, addDoc } from 'firebase/firestore';
-const Form = () => {
+const Form = ({ onMsgAdded }) => {
   const [message, setMessage] = useState('');
   const [user] = useAuthState(Auth);
 
@@ -18,9 +18,11 @@ const Form = () => {
         user: user.displayName,
         logo: user.photoURL,
         uid: user.uid,
+        date: new Date(),
       });
       console.log('ras', res);
       setMessage('');
+      onMsgAdded();
     }
   };
 

@@ -1,38 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { Auth, db } from '../firebase-config';
-import { collection, getDocs } from 'firebase/firestore';
+import React from 'react';
+import { Auth } from '../firebase-config';
+
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-const MessageContainer = () => {
-  const [chat, setChat] = useState([]);
+const MessageContainer = ({ chat }) => {
   const [user] = useAuthState(Auth);
 
-  const chatRef = collection(db, 'messages');
-
-  useEffect(() => {
-    const getMessages = async () => {
-      const res = await getDocs(chatRef);
-      if (res) {
-        setChat(res.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-      }
-    };
-    getMessages();
-  }, [chat]);
-  console.log('chat', chat[0]?.logo);
   return (
-    <div className='messages-container'>
+    <div
+      className='messages-container'
+      style={{ maxHeight: 500, overflowY: 'scroll' }}
+    >
       {user && chat ? (
         <>
-          {chat.map((message) => (
-            <div
-              className={`message-box ${
-                user.uid === message.uid ? 'current-user' : ''
-              }`}
-            >
-              <img src={message.logo} alt={message.user} />
-              <p>{message.message}</p>
-            </div>
-          ))}
+          {chat
+            .sort(function (a, b) {
+              var c = a.date;
+              var d = b.date;
+              return c - d;
+            })
+            .map((message) => (
+              <div
+                className={`message-box ${
+                  user.uid === message.uid ? 'current-user' : ''
+                }`}
+              >
+                {user.uid !== message.uid && (
+                  <div>
+                    <img src={message.logo} alt={message.user} />
+                  </div>
+                )}
+
+                <div>
+                  <p>{message.message}</p>
+                </div>
+              </div>
+            ))}
         </>
       ) : (
         <p>Make sure to login</p>
